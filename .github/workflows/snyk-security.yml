@@ -29,7 +29,7 @@ jobs:
 
       # Step 4: Set up Snyk CLI
       - name: Set up Snyk CLI
-        uses: snyk/actions/setup@v4
+        uses: snyk/actions/setup@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
