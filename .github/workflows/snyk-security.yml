@@ -16,6 +16,10 @@ jobs:
       actions: read
 
     steps:
+      #Authenticate with Snyk
+      - name: Authenticate with Snyk
+        run: snyk auth $SNYK_TOKEN
+        
       # Checkout repository code
       - name: Checkout repository
         uses: actions/checkout@v4
