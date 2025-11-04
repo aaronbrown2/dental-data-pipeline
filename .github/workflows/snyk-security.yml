@@ -39,7 +39,7 @@ jobs:
         
       #Authenticate with Snyk
       - name: Authenticate with Snyk
-        run: snyk auth $SNYK_TOKEN
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
       # Run Snyk Code (SAST) analysis and save output in SARIF format
       - name: Snyk Code test
