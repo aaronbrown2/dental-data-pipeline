@@ -1,29 +1,55 @@
 name: Snyk Security Scan
 
-on: push
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
   security:
-
     runs-on: ubuntu-latest
 
     permissions:
-      security-events: write
-
-      # If your repository is private, also add:
-      actions: read
       contents: read
+      security-events: write
+      actions: read
 
     steps:
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python-3.12@master
-        continue-on-error: true # To make sure that SARIF upload gets called
+      # Checkout repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Set up Snyk CLI
+      - name: Set up Snyk CLI
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk.sarif
+
+      # Run Snyk Code (SAST) analysis and save output in SARIF format
+      - name: Snyk Code test
+        run: snyk code test --sarif-file-output=snyk-code.sarif || true
+        continue-on-error: true
+
+      # Run Snyk Open Source (dependency scan)
+      - name: Snyk Open Source monitor
+        run: snyk monitor --all-projects || true
+        continue-on-error: true
+
+      # Upload Snyk Code results to GitHub Security tab
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: snyk.sarif
+          sarif_file: snyk-code.sarif
