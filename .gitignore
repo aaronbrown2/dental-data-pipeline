@@ -1,6 +1,26 @@
+# --- Python ---
+__pycache__/
+*.pyc
 
-/app/__pycache__
+# --- OS / Editor files ---
+.DS_Store
+
+# --- Databases ---
+*.db
+
+# --- Build / Analysis tools ---
+scannerwork/
+.scannerwork/
+.sonar/
+
+# --- Project-specific files ---
+.claude/
 .claude/settings.local.json
-/.claude
-/app/routers/__pycache__
+.github/instructions/snyk_rules.instructions.md
+
+# --- FastAPI app structure ---
+app/__pycache__/
+app/routers/__pycache__/
+
+# --- Claude markdown ---
 CLAUDE.md

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from .. import models, schemas, auth
 from ..database import get_db
+from ..cloud_storage import upload_to_cloud
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
@@ -51,7 +52,7 @@ def get_profile(
     return profile
 
 @router.post("/radiographs/upload")
-def upload_radiograph(
+async def upload_radiograph(
     file: UploadFile = File(...),
     description: str = None,
     current_user: models.User = Depends(auth.get_current_user),
@@ -75,9 +76,11 @@ def upload_radiograph(
     file_path = os.path.join(upload_dir, unique_filename)
     
     # Save file
-    with open(file_path, "wb") as buffer:
-        content = file.file.read()
-        buffer.write(content)
+    file_url = upload_to_cloud(
+        file_content=await file.read(),
+        filename=file.filename,
+        bucket_name="dental-files-aaronbrown"
+    )
     
     # Save to database
     db_radiograph = models.Radiograph(
@@ -85,7 +88,7 @@ def upload_radiograph(
         filename=unique_filename,
         original_filename=file.filename,
         file_path=file_path,
-        file_size=len(content),
+        file_size=len(file_content),
         description=description
     )
     db.add(db_radiograph)
