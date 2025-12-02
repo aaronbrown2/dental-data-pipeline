@@ -1,5 +1,5 @@
 // Global app configuration
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://127.0.0.1:8000';
 
 // Utility functions
 const Utils = {
@@ -151,10 +151,14 @@ const API = {
                 return;
             }
 
-            const data = await response.json();
-            
+            let data = null;
+
+            if (response.headers.get("content-type")?.includes("application/json")) {
+                data = await response.json();
+            }
+
             if (!response.ok) {
-                throw new Error(data.detail || 'Upload failed');
+                throw new Error(data?.detail || 'Upload failed');
             }
 
             return data;

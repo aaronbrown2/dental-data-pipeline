@@ -1,12 +1,19 @@
 import os
 import uuid
+import mimetypes
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 from typing import List
+from dotenv import load_dotenv
 from .. import models, schemas, auth
 from ..database import get_db
-from ..cloud_storage import upload_to_cloud
+from ..cloud_storage import encrypt_file, decrypt_file, upload_to_cloud, download_and_decrypt
+
+load_dotenv()
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
+LOCAL_UPLOAD_DIR = os.getenv("LOCAL_UPLOAD_DIR", "uploads")
+BUCKET_NAME = os.getenv("BUCKET_NAME", "dummy_bucket")
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
@@ -66,21 +73,31 @@ async def upload_radiograph(
             detail="Only JPEG, PNG, and TIFF files are allowed"
         )
     
-    # Create upload directory if it doesn't exist
-    upload_dir = "uploads"
-    os.makedirs(upload_dir, exist_ok=True)
-    
-    # Generate unique filename
+    #Generate file name and read file 
     file_extension = file.filename.split(".")[-1]
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
-    file_path = os.path.join(upload_dir, unique_filename)
+    file_content=await file.read()
+    print("File size:", len(file_content))
+
+    encrypted_content = encrypt_file(file_content)
+
+    # Local / Cloud switch
+    if ENVIRONMENT == "local":
+        os.makedirs(LOCAL_UPLOAD_DIR, exist_ok=True)
+        file_path = os.path.join(LOCAL_UPLOAD_DIR, unique_filename)
+        
+        with open (file_path, "wb") as f:
+            f.write(encrypted_content)
+
+        file_url = file_path
     
-    # Save file
-    file_url = upload_to_cloud(
-        file_content=await file.read(),
-        filename=file.filename,
-        bucket_name="dental-files-aaronbrown"
-    )
+    else:
+        file_path = None
+        file_url = cloud_storage.upload_to_cloud(
+            encrypted_content,
+            unique_filename,
+            BUCKET_NAME
+        )
     
     # Save to database
     db_radiograph = models.Radiograph(
@@ -88,11 +105,12 @@ async def upload_radiograph(
         filename=unique_filename,
         original_filename=file.filename,
         file_path=file_path,
-        file_size=len(file_content),
+        file_size=len(encrypted_content),
         description=description
     )
     db.add(db_radiograph)
     db.commit()
+    db.refresh(db_radiograph)
     
     return {"message": "File uploaded successfully", "filename": unique_filename}
 
@@ -121,7 +139,21 @@ def get_radiograph_file(
     if not radiograph:
         raise HTTPException(status_code=404, detail="Radiograph not found")
     
-    return FileResponse(
-        path=radiograph.file_path,
-        filename=radiograph.original_filename
+    mime_type, _ = mimetypes.guess_type(radiograph.original_filename)
+    if not mime_type:
+        mime_type = "application/octet-stream"
+
+    if ENVIRONMENT == "local" and radiograph.file_path:
+        with open(radiograph.file_path, "rb") as f:
+            encrypted_data = f.read()
+
+        decrypted_bytes = decrypt_file(encrypted_data)
+
+        return Response(decrypted_bytes, media_type=mime_type)
+
+    decrypted_bytes = download_and_decrypt(
+        radiograph.filename,
+        BUCKET_NAME
     )
+
+    return Response(decrypted_bytes, media_type=mime_type)
