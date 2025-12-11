@@ -9,6 +9,9 @@ services:
     environment:
       ENVIRONMENT: "local"
       ENCRYPTION_KEY: "u0G6ugAPCznw8q0ZLfOjOZg7ox61hVoOmT3MlqYnu_E="
+      BUCKET_NAME: "dental-files-aaronbrown"
+      SONAR_TOKEN: "sqp_60a1ce93db0fcd50b67f0f3e7a7df62f9721a892"
+      JWT_KEY: "d933f72418c802e1945e6841253a3b0abdf0d419256987a665e9bff5735e515fe64b2acde9d6a8f835175382f9de5d5eeafe95e1d37f93800cdea890b6a055ab"
     volumes:
       - .:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000

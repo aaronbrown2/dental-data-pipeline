@@ -6,9 +6,12 @@ from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from . import models
 from .database import get_db
+from dotenv import load_dotenv
+from os import getenv
 
 # Security configuration
-SECRET_KEY = "your-super-secret-key-change-this-in-production"
+load_dotenv()
+JWT_KEY = getenv("JWT_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -28,7 +31,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, JWT_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 def get_current_user(token: str = Depends(security), db: Session = Depends(get_db)):
@@ -38,7 +41,7 @@ def get_current_user(token: str = Depends(security), db: Session = Depends(get_d
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token.credentials, JWT_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
