@@ -3,13 +3,12 @@ version: '3.8'
 services:
   app:
     build: .
+    container_name: dental-app
     ports:
       - "8000:8000"
+    environment:
+      ENVIRONMENT: "local"
+      ENCRYPTION_KEY: "u0G6ugAPCznw8q0ZLfOjOZg7ox61hVoOmT3MlqYnu_E="
     volumes:
       - .:/app
-    environment:
-      - PORT=8000
-      - HOST=0.0.0.0
-      - RELOAD=true
-      - LOG_LEVEL=info
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000

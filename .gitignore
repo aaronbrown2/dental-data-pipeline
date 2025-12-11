@@ -14,6 +14,8 @@ scannerwork/
 .sonar/
 
 # --- Project-specific files ---
+.env
+uploads/
 .claude/
 .claude/settings.local.json
 .github/instructions/snyk_rules.instructions.md
