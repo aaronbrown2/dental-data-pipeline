@@ -27,6 +27,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_csp_header(request, call_next):
+    response = await call_next(request)
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://kit.fontawesome.com; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "font-src 'self' https://kit.fontawesome.com; "
+        "img-src 'self' data:; "
+        "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://cdn.jsdelivr.net; "
+        "frame-ancestors 'none'; "
+    )
+    return response
+
+
+
 # Mount static files for serving uploaded radiographs
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 

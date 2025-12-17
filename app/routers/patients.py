@@ -1,6 +1,6 @@
 import os
 import uuid
-import mimetypes
+from mimetypes import guess_type
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
@@ -77,7 +77,6 @@ async def upload_radiograph(
     file_extension = file.filename.split(".")[-1]
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
     file_content=await file.read()
-    print("File size:", len(file_content))
 
     encrypted_content = encrypt_file(file_content)
 
@@ -88,12 +87,9 @@ async def upload_radiograph(
         
         with open (file_path, "wb") as f:
             f.write(encrypted_content)
-
-        file_url = file_path
     
     else:
-        file_path = None
-        file_url = cloud_storage.upload_to_cloud(
+        file_path = upload_to_cloud(
             encrypted_content,
             unique_filename,
             BUCKET_NAME
@@ -139,7 +135,7 @@ def get_radiograph_file(
     if not radiograph:
         raise HTTPException(status_code=404, detail="Radiograph not found")
     
-    mime_type, _ = mimetypes.guess_type(radiograph.original_filename)
+    mime_type, _ = guess_type(radiograph.original_filename)
     if not mime_type:
         mime_type = "application/octet-stream"
 
