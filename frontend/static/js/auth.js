@@ -4,9 +4,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const demoLoginBtn = document.getElementById('demoLoginBtn');
 
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
+    }
+
+    if (demoLoginBtn) {
+        demoLoginBtn.addEventListener('click', handleDemoLogin);
     }
 
     if (registerForm) {
@@ -53,6 +58,47 @@ async function handleLogin(event) {
         console.error('Login error:', error);
     } finally {
         Utils.showSpinner('loginSpinner', false);
+    }
+}
+
+async function handleDemoLogin() {
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+
+    emailInput.value = 'demo@dental-records.dev';
+    passwordInput.value = 'DemoPassword123!';
+
+    Utils.showSpinner('demoLoginSpinner', true);
+
+    try {
+        const response = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: emailInput.value,
+                password: passwordInput.value
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.access_token);
+            Utils.showAlert('alert-container', 'Demo loaded! Redirecting...', 'success');
+
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 700);
+        } else {
+            Utils.showAlert('alert-container', data.detail || 'Demo login is not available.');
+        }
+    } catch (error) {
+        Utils.showAlert('alert-container', 'Connection error. Please try again.');
+        console.error('Demo login error:', error);
+    } finally {
+        Utils.showSpinner('demoLoginSpinner', false);
     }
 }
 

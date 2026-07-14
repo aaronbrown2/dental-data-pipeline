@@ -4,6 +4,7 @@ __pycache__/
 
 # --- OS / Editor files ---
 .DS_Store
+.vscode/
 
 # --- Databases ---
 *.db
