@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from ..seed_demo import is_demo_login, seed_demo_data
 from .. import models, schemas, auth
 from ..database import get_db
 
@@ -34,6 +35,9 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=schemas.Token)
 def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
+    if is_demo_login(user_credentials.email):
+        seed_demo_data(db)
+
     user = db.query(models.User).filter(
         models.User.email == user_credentials.email
     ).first()

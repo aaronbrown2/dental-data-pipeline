@@ -3,13 +3,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# SQLite database file  
+# SQLite keeps the portfolio/demo deployment lightweight. Set DATABASE_URL to
+# Postgres/Cloud SQL only when persistent managed storage is needed.
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dental_app.db")
 
 
 # Use 'check_same_thread' only for SQLite
 engine = create_engine(
-    DATABASE_URL, 
+    DATABASE_URL,
+    echo=False,
     connect_args=
             {"check_same_thread": False} 
             if DATABASE_URL.startswith("sqlite") 

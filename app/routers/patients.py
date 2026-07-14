@@ -11,9 +11,10 @@ from ..database import get_db
 from ..cloud_storage import encrypt_file, decrypt_file, upload_to_cloud, download_and_decrypt
 
 load_dotenv()
-ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local").strip().lower()
 LOCAL_UPLOAD_DIR = os.getenv("LOCAL_UPLOAD_DIR", "uploads")
-BUCKET_NAME = os.getenv("BUCKET_NAME", "dummy_bucket")
+BUCKET_NAME = os.getenv("BUCKET_NAME")
+MAX_FILE_SIZE = 10 * 1024 * 1024
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
@@ -78,6 +79,12 @@ async def upload_radiograph(
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
     file_content=await file.read()
 
+    if len(file_content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="File too large"
+        )
+
     encrypted_content = encrypt_file(file_content)
 
     # Local / Cloud switch
@@ -89,6 +96,12 @@ async def upload_radiograph(
             f.write(encrypted_content)
     
     else:
+        if not BUCKET_NAME:
+            raise HTTPException(
+                status_code=500,
+                detail="BUCKET_NAME must be configured for cloud uploads"
+            )
+
         file_path = upload_to_cloud(
             encrypted_content,
             unique_filename,
@@ -140,12 +153,21 @@ def get_radiograph_file(
         mime_type = "application/octet-stream"
 
     if ENVIRONMENT == "local" and radiograph.file_path:
+        if not os.path.exists(radiograph.file_path):
+            raise HTTPException(status_code=404, detail="Radiograph file not found")
+
         with open(radiograph.file_path, "rb") as f:
             encrypted_data = f.read()
 
         decrypted_bytes = decrypt_file(encrypted_data)
 
         return Response(decrypted_bytes, media_type=mime_type)
+
+    if not BUCKET_NAME:
+        raise HTTPException(
+            status_code=500,
+            detail="BUCKET_NAME must be configured for cloud downloads"
+        )
 
     decrypted_bytes = download_and_decrypt(
         radiograph.filename,

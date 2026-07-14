@@ -1,27 +1,36 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from .database import engine
+from .database import SessionLocal, engine
 from . import models
 from .routers import auth, patients, appointments
+from .seed_demo import seed_demo_data
 
-# Create database tables
-models.Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    models.Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        seed_demo_data(db)
+    finally:
+        db.close()
+    yield
 
 # Initialize FastAPI app
 app = FastAPI(
     title="Dental AI Patient Onboarding",
     description="A patient management system for dental practices",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 # CORS middleware for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:8000",
-        "http://localhost:8000"
-    ],  # In production, specify your frontend URL
+    allow_origins=["*"],  # In production, specify your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,7 +45,7 @@ async def add_csp_header(request, call_next):
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
         "font-src 'self' https://kit.fontawesome.com; "
         "img-src 'self' data:; "
-        "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://cdn.jsdelivr.net; "
+        "connect-src 'self' https: https://cdn.jsdelivr.net; "
         "frame-ancestors 'none'; "
     )
     return response
@@ -44,7 +53,7 @@ async def add_csp_header(request, call_next):
 
 
 # Mount static files for serving uploaded radiographs
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+#app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Mount static files for frontend
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
