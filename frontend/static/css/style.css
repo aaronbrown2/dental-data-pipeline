@@ -53,6 +53,28 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+.demo-login-btn {
+    font-weight: 700;
+    padding: 16px 30px;
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.25);
+}
+
+.demo-login-panel {
+    background-color: var(--dental-light);
+    border: 1px solid rgba(13, 110, 253, 0.2);
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+}
+
+.demo-login-label {
+    color: var(--dental-blue);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
 .form-control {
     border-radius: 8px;
     padding: 12px 15px;

@@ -62,11 +62,18 @@ async function handleLogin(event) {
 }
 
 async function handleDemoLogin() {
+    const demoEmail = 'demo@dental-records.dev';
+    const demoPassword = 'DemoPassword123!';
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
 
-    emailInput.value = 'demo@dental-records.dev';
-    passwordInput.value = 'DemoPassword123!';
+    if (emailInput) {
+        emailInput.value = demoEmail;
+    }
+
+    if (passwordInput) {
+        passwordInput.value = demoPassword;
+    }
 
     Utils.showSpinner('demoLoginSpinner', true);
 
@@ -77,8 +84,8 @@ async function handleDemoLogin() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: emailInput.value,
-                password: passwordInput.value
+                email: demoEmail,
+                password: demoPassword
             })
         });
 

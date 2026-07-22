@@ -31,6 +31,17 @@
 
                         <div id="alert-container"></div>
 
+                        <div class="demo-login-panel mb-4">
+                            <p class="demo-login-label mb-2">Portfolio walkthrough</p>
+                            <button type="button" class="btn btn-primary btn-lg demo-login-btn w-100" id="demoLoginBtn">
+                                <span class="spinner-border spinner-border-sm me-2 d-none" id="demoLoginSpinner"></span>
+                                Launch Demo Account
+                            </button>
+                            <p class="text-muted small mb-0 mt-2">Opens preloaded fake patient data.</p>
+                        </div>
+
+                        <div class="text-center text-muted small mb-4">or sign in with your own account</div>
+
                         <form id="loginForm">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email Address</label>
@@ -72,11 +83,6 @@
                             <button type="submit" class="btn btn-primary w-100 btn-lg">
                                 <span class="spinner-border spinner-border-sm me-2 d-none" id="loginSpinner"></span>
                                 Sign In
-                            </button>
-
-                            <button type="button" class="btn btn-outline-primary w-100 mt-3" id="demoLoginBtn">
-                                <span class="spinner-border spinner-border-sm me-2 d-none" id="demoLoginSpinner"></span>
-                                Try Demo Account
                             </button>
                         </form>
 
