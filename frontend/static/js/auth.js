@@ -48,7 +48,7 @@ async function handleLogin(event) {
             Utils.showAlert('alert-container', 'Login successful! Redirecting...', 'success');
             
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
             }, 1000);
         } else {
             Utils.showAlert('alert-container', data.detail || 'Login failed. Please check your credentials.');
@@ -89,7 +89,7 @@ async function handleDemoLogin() {
             Utils.showAlert('alert-container', 'Demo loaded! Redirecting...', 'success');
 
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
             }, 700);
         } else {
             Utils.showAlert('alert-container', data.detail || 'Demo login is not available.');
@@ -148,7 +148,7 @@ async function handleRegister(event) {
             
             // Auto-redirect to login page after success
             setTimeout(() => {
-                window.location.href = 'login.html';
+                window.location.href = '/login';
             }, 2000);
         } else {
             Utils.showAlert('alert-container', data.detail || 'Registration failed. Please try again.');

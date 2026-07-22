@@ -58,7 +58,7 @@ function displayRecentAppointments(appointments) {
             <div class="text-center py-4">
                 <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
                 <p class="text-muted">No appointments scheduled</p>
-                <a href="appointments.html#book" class="btn btn-primary">Book Your First Appointment</a>
+                <a href="/appointments#book" class="btn btn-primary">Book Your First Appointment</a>
             </div>
         `;
         return;
@@ -76,7 +76,7 @@ function displayRecentAppointments(appointments) {
             <div class="text-center py-4">
                 <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
                 <p class="text-muted">No upcoming appointments</p>
-                <a href="appointments.html#book" class="btn btn-primary">Book New Appointment</a>
+                <a href="/appointments#book" class="btn btn-primary">Book New Appointment</a>
             </div>
         `;
         return;
@@ -113,7 +113,7 @@ function displayRecentRadiographs(radiographs) {
             <div class="text-center py-4">
                 <i class="fas fa-x-ray fa-2x text-muted mb-2"></i>
                 <p class="text-muted mb-2">No radiographs uploaded</p>
-                <a href="radiographs.html#upload" class="btn btn-sm btn-outline-primary">Upload X-Ray</a>
+                <a href="/radiographs#upload" class="btn btn-sm btn-outline-primary">Upload X-Ray</a>
             </div>
         `;
         return;
@@ -151,11 +151,11 @@ function getAppointmentStatusColor(status) {
 }
 
 function viewAppointment(appointmentId) {
-    window.location.href = `appointments.html#${appointmentId}`;
+    window.location.href = `/appointments#${appointmentId}`;
 }
 
 function viewRadiograph(radiographId) {
-    window.location.href = `radiographs.html#${radiographId}`;
+    window.location.href = `/radiographs#${radiographId}`;
 }
 
 function showDashboardError() {

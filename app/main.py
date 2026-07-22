@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .database import SessionLocal, engine
@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Dental AI Patient Onboarding",
+    title="Dental Records Patient Onboarding",
     description="A patient management system for dental practices",
     version="1.0.0",
     lifespan=lifespan,
@@ -60,14 +60,62 @@ async def add_csp_header(request, call_next):
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="frontend")
 
+@app.get("/")
+def root():
+    return FileResponse("frontend/index.html")
+
+
+@app.get("/login")
+def login_page():
+    return FileResponse("frontend/login.html")
+
+
+@app.get("/register")
+def register_page():
+    return FileResponse("frontend/register.html")
+
+
+@app.get("/dashboard")
+def dashboard_page():
+    return FileResponse("frontend/dashboard.html")
+
+
+@app.get("/profile")
+def profile_page():
+    return FileResponse("frontend/profile.html")
+
+
+@app.get("/appointments")
+def appointments_page():
+    return FileResponse("frontend/appointments.html")
+
+
+@app.get("/radiographs")
+def radiographs_page():
+    return FileResponse("frontend/radiographs.html")
+
+
+@app.get("/{page_name}.html")
+def legacy_html_page(page_name: str):
+    clean_routes = {
+        "index": "/",
+        "login": "/login",
+        "register": "/register",
+        "dashboard": "/dashboard",
+        "profile": "/profile",
+        "appointments": "/appointments",
+        "radiographs": "/radiographs",
+    }
+    if page_name not in clean_routes:
+        return FileResponse(f"frontend/{page_name}.html")
+    return RedirectResponse(url=clean_routes[page_name], status_code=301)
+
+
 # Include routers
 app.include_router(auth.router)
 app.include_router(patients.router)
 app.include_router(appointments.router)
 
-@app.get("/")
-def root():
-    return FileResponse("frontend/index.html")
 
 @app.get("/health")
 def health_check():

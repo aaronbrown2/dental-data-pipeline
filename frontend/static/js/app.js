@@ -83,7 +83,7 @@ const API = {
             if (response.status === 401) {
                 // Token expired or invalid
                 localStorage.removeItem('token');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
                 return;
             }
 
@@ -147,7 +147,7 @@ const API = {
             
             if (response.status === 401) {
                 localStorage.removeItem('token');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
                 return;
             }
 
@@ -191,13 +191,13 @@ const Auth = {
     // Logout user
     logout() {
         localStorage.removeItem('token');
-        window.location.href = 'login.html';
+        window.location.href = '/login';
     },
 
     // Redirect to login if not authenticated
     requireAuth() {
         if (!this.isLoggedIn()) {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
             return false;
         }
         return true;
@@ -207,8 +207,8 @@ const Auth = {
 // Page initialization
 document.addEventListener('DOMContentLoaded', function() {
     // Check authentication on protected pages
-    const protectedPages = ['dashboard.html', 'profile.html', 'appointments.html', 'radiographs.html'];
-    const currentPage = window.location.pathname.split('/').pop();
+    const protectedPages = ['dashboard', 'profile', 'appointments', 'radiographs'];
+    const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
     
     if (protectedPages.includes(currentPage)) {
         if (!Auth.requireAuth()) {
