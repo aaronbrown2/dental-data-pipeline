@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .database import SessionLocal, engine
@@ -66,9 +67,11 @@ app.include_router(appointments.router)
 
 @app.get("/")
 def root():
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/frontend/")
+    return FileResponse("frontend/index.html")
 
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend_root")
