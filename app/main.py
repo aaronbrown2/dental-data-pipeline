@@ -1,6 +1,7 @@
+import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -36,6 +37,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+CANONICAL_HOST = os.getenv("CANONICAL_HOST", "dental-records.com").strip().lower()
+REDIRECT_HOSTS = {
+    host.strip().lower()
+    for host in os.getenv(
+        "REDIRECT_HOSTS",
+        "www.dental-records.com,app.dental-records.com",
+    ).split(",")
+    if host.strip()
+}
+
+
+@app.middleware("http")
+async def redirect_to_canonical_host(request: Request, call_next):
+    host = request.headers.get("host", "").split(":")[0].lower()
+    if CANONICAL_HOST and host in REDIRECT_HOSTS and host != CANONICAL_HOST:
+        redirect_url = request.url.replace(scheme="https", netloc=CANONICAL_HOST)
+        return RedirectResponse(url=str(redirect_url), status_code=301)
+
+    return await call_next(request)
+
 
 @app.middleware("http")
 async def add_csp_header(request, call_next):

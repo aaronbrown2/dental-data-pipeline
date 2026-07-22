@@ -63,6 +63,8 @@ DEMO_EMAIL=demo@dental-records.dev
 DEMO_PASSWORD=DemoPassword123!
 ENCRYPTION_KEY=<fernet-key>
 JWT_KEY=<jwt-secret>
+CANONICAL_HOST=dental-records.com
+REDIRECT_HOSTS=www.dental-records.com,app.dental-records.com,dental-app-39943357835.us-central1.run.app
 ```
 
 Generate local secrets:
@@ -79,7 +81,7 @@ gcloud run deploy dental-radiograph-demo \
   --source . \
   --region us-central1 \
   --allow-unauthenticated \
-  --set-env-vars ENVIRONMENT=local,DATABASE_URL=sqlite:////tmp/dental_app.db,LOCAL_UPLOAD_DIR=/tmp/uploads,SEED_DEMO_DATA=true,DEMO_EMAIL=demo@dental-records.dev,DEMO_PASSWORD=DemoPassword123!,ENCRYPTION_KEY=<fernet-key>,JWT_KEY=<jwt-secret>
+  --set-env-vars ENVIRONMENT=local,DATABASE_URL=sqlite:////tmp/dental_app.db,LOCAL_UPLOAD_DIR=/tmp/uploads,SEED_DEMO_DATA=true,DEMO_EMAIL=demo@dental-records.dev,DEMO_PASSWORD=DemoPassword123!,ENCRYPTION_KEY=<fernet-key>,JWT_KEY=<jwt-secret>,CANONICAL_HOST=dental-records.com,REDIRECT_HOSTS=www.dental-records.com,app.dental-records.com,dental-app-39943357835.us-central1.run.app
 ```
 
 ### Local Docker
